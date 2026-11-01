@@ -3,17 +3,15 @@ plugins {
 }
 
 android {
-    namespace 'com.wot.training.overlay'
+    namespace 'com.wot.training'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.wot.training.overlay"
+        applicationId "com.wot.training"
         minSdk 24
         targetSdk 34
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -22,6 +20,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17

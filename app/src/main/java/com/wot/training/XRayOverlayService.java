@@ -6,7 +6,6 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -56,15 +55,14 @@ public class XRayOverlayService extends Service {
                 paint.setStyle(android.graphics.Paint.Style.STROKE);
                 paint.setStrokeWidth(6f);
 
-                // Tankın qarajda durduğu mərkəzi hissəyə uyğunlaşdırılmış dinamik qutu
-                // Buradaki rəqəmləri ekran ölçünə görə dəyişə bilərsən
-                canvas.drawRect(250f, 220f, 750f, 650f, paint);
+                // Ekran üzərində tankın dayanacağı mərkəzi hitbox qutusu
+                canvas.drawRect(180f, 280f, 880f, 850f, paint);
             }
         };
 
-        // 2. Açıb-Bağlamaq üçün Sürüklənən Düymə (Floating Toggle Button)
+        // 2. Açıb-Bağlamaq üçün İşlək Düymə
         toggleButton = new Button(this);
-        toggleButton.setText("X-Ray: ON");
+        toggleButton.setText("X-RAY: ON");
         toggleButton.setBackgroundColor(android.graphics.Color.parseColor("#238636"));
         toggleButton.setTextColor(android.graphics.Color.WHITE);
         toggleButton.setTextSize(12f);
@@ -77,49 +75,25 @@ public class XRayOverlayService extends Service {
                 PixelFormat.TRANSLUCENT
         );
         buttonParams.gravity = Gravity.TOP | Gravity.START;
-        buttonParams.x = 50;
-        buttonParams.y = 150;
+        buttonParams.x = 40;
+        buttonParams.y = 120;
 
-        // Düyməyə basanda çərçivəni açıb-bağlasın
+        // Düyməyə basıldıqda dərhal işləyən funksiya
         toggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isVisible = !isVisible;
                 if (isVisible) {
-                    toggleButton.setText("X-Ray: ON");
+                    toggleButton.setText("X-RAY: ON");
                     toggleButton.setBackgroundColor(android.graphics.Color.parseColor("#238636"));
                     overlayView.setVisibility(View.VISIBLE);
+                    overlayView.invalidate();
                 } else {
-                    toggleButton.setText("X-Ray: OFF");
+                    toggleButton.setText("X-RAY: OFF");
                     toggleButton.setBackgroundColor(android.graphics.Color.parseColor("#da3633"));
                     overlayView.setVisibility(View.GONE);
+                    overlayView.invalidate();
                 }
-            }
-        });
-
-        // Düyməni ekranda barmaqla sürükləmək üçün toxunma mexanizmi
-        toggleButton.setOnTouchListener(new View.OnTouchListener() {
-            private int initialX;
-            private int initialY;
-            private float initialTouchX;
-            private float initialTouchY;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        initialX = buttonParams.x;
-                        initialY = buttonParams.y;
-                        initialTouchX = event.getRawX();
-                        initialTouchY = event.getRawY();
-                        return true;
-                    case MotionEvent.ACTION_MOVE:
-                        buttonParams.x = initialX + (int) (event.getRawX() - initialTouchX);
-                        buttonParams.y = initialY + (int) (event.getRawY() - initialTouchY);
-                        windowManager.updateViewLayout(toggleButton, buttonParams);
-                        return true;
-                }
-                return false;
             }
         });
 

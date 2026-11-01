@@ -19,10 +19,11 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Sistem Gradle Kurulumu ve APK Derle
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        arguments: assembleDebug
+    - name: Gradle Wrapper Dosyalarını Otomatik Oluştur
+      run: gradle wrapper --gradle-version 8.1.0
+
+    - name: APK Derle (Debug)
+      run: ./gradlew assembleDebug
 
     - name: Derlenen APK Dosyasını Kaydet (Artifact)
       uses: actions/upload-artifact@v4

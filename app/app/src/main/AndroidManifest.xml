@@ -20,11 +20,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".overlay.TankOverlayService"
-            android:enabled="true"
-            android:exported="false" />
-
     </application>
 
 </manifest>

@@ -55,22 +55,12 @@ public class XRayOverlayService extends Service {
     public void onCreate() {
         super.onCreate();
         
-        // Çökmenin qarşısını almaq üçün Foreground Service Bildirişi
         createNotificationChannel();
-        Notification notification;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notification = new Notification.Builder(this, "wot_xray_channel")
-                    .setContentTitle("WoT X-Ray Trainer")
-                    .setContentText("Aktivdir")
-                    .setSmallIcon(android.R.drawable.ic_menu_compass)
-                    .build();
-        } else {
-            notification = new Notification.Builder(this)
-                    .setContentTitle("WoT X-Ray Trainer")
-                    .setContentText("Aktivdir")
-                    .setSmallIcon(android.R.drawable.ic_menu_compass)
-                    .build();
-        }
+        Notification notification = new Notification.Builder(this, "wot_xray_channel")
+                .setContentTitle("WoT X-Ray Trainer")
+                .setContentText("Aktivdir")
+                .setSmallIcon(android.R.drawable.ic_menu_compass)
+                .build();
         startForeground(1, notification);
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -80,7 +70,6 @@ public class XRayOverlayService extends Service {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                 WindowManager.LayoutParams.TYPE_PHONE;
 
-        // Hitbox Çəkmə Qatı
         overlayParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
                 layoutParamType,
@@ -92,7 +81,6 @@ public class XRayOverlayService extends Service {
         overlayParams.gravity = Gravity.TOP | Gravity.START;
         overlayDrawView = new OverlayDrawView(this);
 
-        // İdarəetmə Paneli (Düymələr)
         buttonLayout = new LinearLayout(this);
         buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
 
@@ -121,7 +109,6 @@ public class XRayOverlayService extends Service {
         layoutParams.x = 30;
         layoutParams.y = 100;
 
-        // Aç / Bağla düyməsi
         toggleButton.setOnClickListener(v -> {
             isVisible = !isVisible;
             if (isVisible) {
@@ -136,7 +123,6 @@ public class XRayOverlayService extends Service {
             overlayDrawView.invalidate();
         });
 
-        // Tank dəyişmə düyməsi
         switchTankButton.setOnClickListener(v -> {
             currentTankIndex = (currentTankIndex + 1) % tankNames.length;
             String newTank = tankNames[currentTankIndex];

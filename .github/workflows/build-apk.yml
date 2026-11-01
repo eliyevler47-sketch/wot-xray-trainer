@@ -27,7 +27,25 @@ jobs:
     - name: HTML dosyasını assets içine kopyala
       run: |
         mkdir -p app/src/main/assets
-        cp index.html app/src/main/assets/index.html
+        SRC=$(find . -name index.html -not -path "./app/*" -not -path "*/node_modules/*" -not -path "./.git/*" | head -n 1)
+        if [ -z "$SRC" ]; then
+          echo "HATA: index.html reponun hiçbir yerinde yok. Repo içeriği:"
+          find . -maxdepth 3 -not -path "./.git/*"
+          exit 1
+        fi
+        echo "Bulunan index.html: $SRC"
+        DIR=$(dirname "$SRC")
+        if [ "$DIR" = "." ]; then
+          cp index.html app/src/main/assets/
+          cp *.css *.js app/src/main/assets/ 2>/dev/null || true
+          for d in css js img images fonts data; do
+            [ -d "$d" ] && cp -r "$d" app/src/main/assets/
+          done
+        else
+          cp -r "$DIR"/. app/src/main/assets/
+        fi
+        echo "assets içeriği:"
+        ls -R app/src/main/assets
 
     - name: APK Derle (Debug)
       run: gradle assembleDebug

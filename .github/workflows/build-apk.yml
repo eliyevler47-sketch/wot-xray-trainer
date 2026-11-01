@@ -1,4 +1,4 @@
-name: Android CI/CD Build APK
+Name: Android CI/CD Build APK
 
 on:
   push:
@@ -23,6 +23,11 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
       with:
         gradle-version: 8.4
+
+    - name: HTML dosyasını assets içine kopyala
+      run: |
+        mkdir -p app/src/main/assets
+        cp index.html app/src/main/assets/index.html
 
     - name: APK Derle (Debug)
       run: gradle assembleDebug

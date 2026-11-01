@@ -3,6 +3,7 @@ package com.wot.training;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -13,6 +14,7 @@ import android.webkit.WebViewClient;
 public class MainActivity extends Activity {
     private WebView webView;
     private static final int NOTIF_PERMISSION_REQ_CODE = 1235;
+    private static final int OVERLAY_PERMISSION_REQ_CODE = 1236;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +27,13 @@ public class MainActivity extends Activity {
             }
         }
 
-        // 2. Əgər overlay (yuxarıda peyda ol) icazəsi verilibsə, servisi dərhal işə sal
+        // 2. "Digər tətbiqlərin üzərində göstər" (Overlay) icazəsini yoxla və yoxdursa avtomatik istə
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (Settings.canDrawOverlays(this)) {
+            if (!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, OVERLAY_PERMISSION_REQ_CODE);
+            } else {
                 startOverlayService();
             }
         } else {
@@ -44,6 +50,17 @@ public class MainActivity extends Activity {
         webView.loadUrl("file:///android_asset/index.html");
         
         setContentView(webView);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // İstifadəçi ayarlardan icazəni verib qayıdanda servisi avtomatik işə sal
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.canDrawOverlays(this)) {
+                startOverlayService();
+            }
+        }
     }
 
     private void startOverlayService() {

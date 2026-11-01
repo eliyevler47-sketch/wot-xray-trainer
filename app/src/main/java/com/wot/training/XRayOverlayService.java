@@ -56,11 +56,20 @@ public class XRayOverlayService extends Service {
         super.onCreate();
         
         createNotificationChannel();
-        Notification notification = new Notification.Builder(this, "wot_xray_channel")
-                .setContentTitle("WoT X-Ray Trainer")
-                .setContentText("Aktivdir")
-                .setSmallIcon(android.R.drawable.ic_menu_compass)
-                .build();
+        Notification notification;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notification = new Notification.Builder(this, "wot_xray_channel")
+                    .setContentTitle("WoT X-Ray Trainer")
+                    .setContentText("Aktivdir")
+                    .setSmallIcon(android.R.drawable.ic_menu_compass)
+                    .build();
+        } else {
+            notification = new Notification.Builder(this)
+                    .setContentTitle("WoT X-Ray Trainer")
+                    .setContentText("Aktivdir")
+                    .setSmallIcon(android.R.drawable.ic_menu_compass)
+                    .build();
+        }
         startForeground(1, notification);
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -114,24 +123,28 @@ public class XRayOverlayService extends Service {
             if (isVisible) {
                 toggleButton.setText("ON");
                 toggleButton.setBackgroundColor(Color.parseColor("#238636"));
-                overlayDrawView.setVisibility(View.VISIBLE);
+                if (overlayDrawView != null) overlayDrawView.setVisibility(View.VISIBLE);
             } else {
                 toggleButton.setText("OFF");
                 toggleButton.setBackgroundColor(Color.parseColor("#da3633"));
-                overlayDrawView.setVisibility(View.GONE);
+                if (overlayDrawView != null) overlayDrawView.setVisibility(View.GONE);
             }
-            overlayDrawView.invalidate();
+            if (overlayDrawView != null) overlayDrawView.invalidate();
         });
 
         switchTankButton.setOnClickListener(v -> {
             currentTankIndex = (currentTankIndex + 1) % tankNames.length;
             String newTank = tankNames[currentTankIndex];
             switchTankButton.setText("Tank: " + newTank);
-            overlayDrawView.invalidate();
+            if (overlayDrawView != null) overlayDrawView.invalidate();
         });
 
-        windowManager.addView(overlayDrawView, overlayParams);
-        windowManager.addView(buttonLayout, layoutParams);
+        try {
+            windowManager.addView(overlayDrawView, overlayParams);
+            windowManager.addView(buttonLayout, layoutParams);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void createNotificationChannel() {
@@ -201,7 +214,11 @@ public class XRayOverlayService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (overlayDrawView != null) windowManager.removeView(overlayDrawView);
-        if (buttonLayout != null) windowManager.removeView(buttonLayout);
+        try {
+            if (overlayDrawView != null) windowManager.removeView(overlayDrawView);
+            if (buttonLayout != null) windowManager.removeView(buttonLayout);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

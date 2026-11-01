@@ -41,10 +41,11 @@ public class XRayOverlayService extends Service {
         float left, top, right, bottom;
         String label;
         int color;
+        boolean isFill;
 
-        public HitboxRect(float l, float t, float r, float b, String lbl, int col) {
+        public HitboxRect(float l, float t, float r, float b, String lbl, int col, boolean fill) {
             this.left = l; this.top = t; this.right = r; this.bottom = b;
-            this.label = lbl; this.color = col;
+            this.label = lbl; this.color = col; this.isFill = fill;
         }
     }
 
@@ -60,13 +61,13 @@ public class XRayOverlayService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notification = new Notification.Builder(this, "wot_xray_channel")
                     .setContentTitle("WoT X-Ray Trainer")
-                    .setContentText("Aktivdir")
+                    .setContentText("Şəffaf Analiz Qatmanı Aktivdir")
                     .setSmallIcon(android.R.drawable.ic_menu_compass)
                     .build();
         } else {
             notification = new Notification.Builder(this)
                     .setContentTitle("WoT X-Ray Trainer")
-                    .setContentText("Aktivdir")
+                    .setContentText("Şəffaf Analiz Qatmanı Aktivdir")
                     .setSmallIcon(android.R.drawable.ic_menu_compass)
                     .build();
         }
@@ -79,6 +80,8 @@ public class XRayOverlayService extends Service {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                 WindowManager.LayoutParams.TYPE_PHONE;
 
+        // BURASI ÇOX VACİBDİR: PixelFormat.TRANSLUCENT ekranı tam şəffaf edir,
+        // FLAG_NOT_TOUCHABLE isə toxunmaları birbaşa arxaya ötürür.
         overlayParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
                 layoutParamType,
@@ -90,6 +93,7 @@ public class XRayOverlayService extends Service {
         overlayParams.gravity = Gravity.TOP | Gravity.START;
         overlayDrawView = new OverlayDrawView(this);
 
+        // İdarəetmə Paneli (Düymələr üçün toxunula bilən hissə)
         buttonLayout = new LinearLayout(this);
         buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
 
@@ -164,34 +168,57 @@ public class XRayOverlayService extends Service {
     private void initializeDatabase() {
         tankDatabase = new HashMap<>();
 
+        // Konumlar və Rənglər: Bənövşəyi (Mühimmat/Yanacaq), Qırmızı (Zəif nöqtə), Sarı (Cupola)
         List<HitboxRect> e4List = new ArrayList<>();
-        e4List.add(new HitboxRect(250f, 400f, 800f, 650f, "T110E4: Lower Plate", Color.RED));
-        e4List.add(new HitboxRect(380f, 250f, 650f, 380f, "T110E4: Cupola", Color.YELLOW));
+        e4List.add(new HitboxRect(150f, 300f, 700f, 550f, "T110E4: Lower Plate", Color.RED, false));
+        e4List.add(new HitboxRect(300f, 180f, 500f, 280f, "Cupola", Color.YELLOW, false));
+        e4List.add(new HitboxRect(400f, 350f, 620f, 480f, "MÜHİMMAT: Bənövşəyi", Color.parseColor("#9b59b6"), true));
         tankDatabase.put("T110E4", e4List);
 
         List<HitboxRect> t30List = new ArrayList<>();
-        t30List.add(new HitboxRect(250f, 420f, 800f, 680f, "T30: Hull Zəifliyi", Color.RED));
-        t30List.add(new HitboxRect(350f, 280f, 680f, 400f, "T30: Gun Mantlet", Color.GREEN));
+        t30List.add(new HitboxRect(200f, 320f, 750f, 580f, "T30: Gövdə Zəifliyi", Color.RED, false));
+        t30List.add(new HitboxRect(350f, 200f, 550f, 300f, "Gun Mantlet", Color.GREEN, false));
+        t30List.add(new HitboxRect(450f, 380f, 680f, 500f, "YANACAQ: Bənövşəyi", Color.parseColor("#9b59b6"), true));
         tankDatabase.put("T30", t30List);
 
         List<HitboxRect> isuList = new ArrayList<>();
-        isuList.add(new HitboxRect(220f, 350f, 820f, 650f, "ISU-152: Ön Korpus", Color.RED));
+        isuList.add(new HitboxRect(180f, 280f, 780f, 550f, "ISU-152: Ön Zireh", Color.RED, false));
+        isuList.add(new HitboxRect(500f, 350f, 700f, 480f, "MOTOR: Bənövşəyi", Color.parseColor("#9b59b6"), true));
         tankDatabase.put("ISU-152", isuList);
     }
 
+    // Tamamilə şəffaf arxa fon üzərində səliqəli çərçivələr çəkən sinif
     private class OverlayDrawView extends View {
-        private Paint strokePaint, textPaint;
+        private final Paint strokePaint;
+        private final Paint fillPaint;
+        private final Paint textPaint;
+        private final Paint bgTextPaint;
 
         public OverlayDrawView(android.content.Context context) {
             super(context);
+            
+            // Xətt qalınlığı
             strokePaint = new Paint();
             strokePaint.setStyle(Paint.Style.STROKE);
-            strokePaint.setStrokeWidth(6f);
+            strokePaint.setStrokeWidth(5f);
+            strokePaint.setAntiAlias(true);
 
+            // Modulların içi üçün yarı-şəffaf dolğu
+            fillPaint = new Paint();
+            fillPaint.setStyle(Paint.Style.FILL);
+            fillPaint.setAntiAlias(true);
+
+            // Yazı tərzi
             textPaint = new Paint();
             textPaint.setColor(Color.WHITE);
-            textPaint.setTextSize(26f);
+            textPaint.setTextSize(24f);
             textPaint.setAntiAlias(true);
+            textPaint.setFakeBoldText(true);
+
+            // Yazının oxunması üçün qara fon qutusu
+            bgTextPaint = new Paint();
+            bgTextPaint.setColor(Color.parseColor("#B3000000")); // Tünd qara fon
+            bgTextPaint.setStyle(Paint.Style.FILL);
         }
 
         @Override
@@ -199,13 +226,31 @@ public class XRayOverlayService extends Service {
             super.onDraw(canvas);
             if (!isVisible) return;
 
+            // DİQQƏT: Burada canvas-ın ümumi arxa fonunu qətiyyən rəngləmirik (`canvas.drawColor(...)` yoxdur).
+            // Bu səbəbdən ekran tamamilə şəffaf qalır və arxadakı hər şey görünür!
+
             String activeTank = tankNames[currentTankIndex];
             List<HitboxRect> boxes = tankDatabase.get(activeTank);
             if (boxes != null) {
                 for (HitboxRect rect : boxes) {
+                    
+                    if (rect.isFill) {
+                        // Bənövşəyi modullar üçün yarı-şəffaf iç dolğu
+                        fillPaint.setColor(rect.color);
+                        fillPaint.setAlpha(120); // Şəffaflıq dərəcəsi
+                        canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, fillPaint);
+                    }
+
+                    // Sərhəd xətti
                     strokePaint.setColor(rect.color);
                     canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, strokePaint);
-                    canvas.drawText(rect.label, rect.left, rect.top - 15f, textPaint);
+
+                    // Etiket arxası qara fon
+                    float textWidth = textPaint.measureText(rect.label);
+                    canvas.drawRect(rect.left, rect.top - 35f, rect.left + textWidth + 16f, rect.top, bgTextPaint);
+
+                    // Etiket yazısı
+                    canvas.drawText(rect.label, rect.left + 8f, rect.top - 10f, textPaint);
                 }
             }
         }

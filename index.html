@@ -9,19 +9,97 @@
             background-color: #0D1117;
             color: #FFFFFF;
             font-family: Arial, sans-serif;
-            text-align: center;
-            padding-top: 50px;
+            margin: 0;
+            padding: 15px;
         }
         h1 {
             color: #58a6ff;
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 5px;
         }
-        p {
+        .subtitle {
+            text-align: center;
             color: #8b949e;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .tank-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .tank-title {
+            color: #f0f6fc;
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .weak-spots {
+            color: #8b949e;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .weak-spots span {
+            color: #f85149;
+            font-weight: bold;
+        }
+        button {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        button:active {
+            background: #2ea043;
         }
     </style>
 </head>
 <body>
+
     <h1>WoT X-Ray Trainer</h1>
-    <p>X-Ray Zireh Zəif Nöqtələri Yüklənir...</p>
+    <div class="subtitle">TD Zəif Nöqtələr Bələdçisi</div>
+
+    <!-- T110E4 -->
+    <div class="tank-card">
+        <div class="tank-title">T110E4 (USA - Tank Destroyer)</div>
+        <div class="weak-spots">
+            • <span>Lower Plate (Alt Zireh):</span> Olduqca həssasdır, düz atışlarda asanlıqla deşilir.<br>
+            • <span>Cupola (Komandir Küpolu):</span> Tevadəki çıxıntısı nişan almaq üçün əla hədəfdir.<br>
+            • <span>Qüllə Yanları:</span> Önə nisbətən yanları daha nazikdir.
+        </div>
+        <button onclick="alert('T110E4 seçildi! Zəif nöqtələr analiz edilir...')">Analiz Et</button>
+    </div>
+
+    <!-- T30 -->
+    <div class="tank-card">
+        <div class="tank-title">T30 (USA - Heavy / TD)</div>
+        <div class="weak-spots">
+            • <span>Hull (Gövdə):</span> Çox zəifdir, demək olar ki, hər kəsdən zərbə alır.<br>
+            • <span>Top Maskası:</span> Çox güclüdür, buraya atış etmək mənasızdır.<br>
+            • <span>Cupola:</span> Küpolu zəifdir, qülləni aşağı tutanda belə vurmaq mümkündür.
+        </div>
+        <button onclick="alert('T30 seçildi! Zəif nöqtələr analiz edilir...')">Analiz Et</button>
+    </div>
+
+    <!-- ISU-152 -->
+    <div class="tank-card">
+        <div class="tank-title">ISU-152 (USSR - Tank Destroyer)</div>
+        <div class="weak-spots">
+            • <span>Ön Korpus:</span> Zirehi yox səviyyəsindədir, istənilən mərmi keçir.<br>
+            • <span>Top Maskası:</span> Böyükdür amma bəzi yerlərdən zəiflik verir.<br>
+            • <span>Yanlar:</span> Çox nazikdir, HE mərmilərlə vurmaq üçün idealdır.
+        </div>
+        <button onclick="alert('ISU-152 seçildi! Zəif nöqtələr analiz edilir...')">Analiz Et</button>
+    </div>
+
 </body>
 </html>

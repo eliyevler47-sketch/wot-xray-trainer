@@ -1,5 +1,8 @@
-// Kök build.gradle - Depo tanımları tamamen settings.gradle dosyasına taşınmıştır.
 buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.1'
     }

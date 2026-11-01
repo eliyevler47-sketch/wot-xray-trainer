@@ -1,4 +1,4 @@
-Name: Android CI/CD Build APK
+name: Android CI/CD Build APK
 
 on:
   push:
